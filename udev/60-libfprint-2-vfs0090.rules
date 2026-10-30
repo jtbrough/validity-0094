@@ -1,0 +1,9 @@
+# Libfprint udev rule for Validity VFS0090 / VFS0094 / VFS0097
+SUBSYSTEM=="usb", ATTRS{idVendor}=="138a", ATTRS{idProduct}=="0090", ATTRS{dev}=="*", TEST=="power/control", ATTR{power/control}="auto", MODE="0660", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="138a", ATTRS{idProduct}=="0090", ENV{LIBFPRINT_DRIVER}="vfs0090"
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="138a", ATTRS{idProduct}=="0094", ATTRS{dev}=="*", TEST=="power/control", ATTR{power/control}="on", MODE="0660", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="138a", ATTRS{idProduct}=="0094", ENV{LIBFPRINT_DRIVER}="vfs0090"
+
+SUBSYSTEM=="usb", ATTRS{idVendor}=="138a", ATTRS{idProduct}=="0097", ATTRS{dev}=="*", TEST=="power/control", ATTR{power/control}="auto", MODE="0660", GROUP="plugdev"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="138a", ATTRS{idProduct}=="0097", ENV{LIBFPRINT_DRIVER}="vfs0090"

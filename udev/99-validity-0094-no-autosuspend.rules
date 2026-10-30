@@ -1,0 +1,2 @@
+# Validity 138a:0094: Disable USB autosuspend (sensor does not wake up properly from autosuspend)
+ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="138a", ATTR{idProduct}=="0094", ATTR{power/control}="on"

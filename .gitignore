@@ -1,0 +1,12 @@
+# Build artifacts & temp files
+_build/
+*.so
+*.so.*
+*.o
+*.a
+*.variant
+*.pgm
+__pycache__/
+*.pyc
+firmware/
+installer.exe
