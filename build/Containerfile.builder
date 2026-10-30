@@ -8,12 +8,16 @@ RUN dnf install -y --setopt=install_weak_deps=False \
 
 WORKDIR /build
 
-# Clone base libfprint with vfs009x driver wiring
-RUN git clone --depth 1 -b vfs009x https://gitlab.archlinux.org/gugah/libfprint.git /build
+# Clone base libfprint and its vfs0090 submodule
+RUN git clone --depth 1 -b vfs009x https://gitlab.archlinux.org/gugah/libfprint.git /build && \
+    git clone https://github.com/3v1n0/libfprint-tod-vfs0090.git /build/libfprint/drivers/vfs0090 && \
+    cd /build/libfprint/drivers/vfs0090 && \
+    git checkout 252c98495791839b36fe5154f55ecca62df2e76a
 
-# Apply our modern meson fix and vfs0090 patches
+# Apply our vfs0090 patches (0094 support, retry handling, modern features init)
 COPY patches/libfprint-tod-vfs0090/ /tmp/patches/
-RUN git -C /build apply /tmp/patches/*.patch || true && \
+RUN cd /build/libfprint/drivers/vfs0090 && \
+    git apply /tmp/patches/*.patch && \
     sed -i 's/foreach driver_test: drivers_tests/foreach driver_test, test_args : drivers_tests/' /build/tests/meson.build
 
 # Configure and compile in-tree driver

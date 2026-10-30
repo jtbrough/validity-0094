@@ -1,27 +1,22 @@
-From d4a68291b827e1f409403a748950582d921b77a0 Mon Sep 17 00:00:00 2001
-From: Jordan Brough <jordan@brough.org>
-Date: Fri, 30 Oct 2026 12:48:00 -0600
-Subject: [PATCH 3/3] vfs0090: auto initialize class features for modern libfprint
+From a02540c28df5b8e50f88994d6c96a90070ad34d6 Mon Sep 17 00:00:00 2001
+From: Jordan Brough <jtbrough@users.noreply.github.com>
+Date: Fri, 30 Oct 2026 13:09:03 -0600
+Subject: [PATCH] vfs0090: auto initialize class features for modern libfprint
 
-Modern libfprint (>= 1.94) strictly asserts in fp_device_constructed that:
-  g_assert (cls->features != FP_DEVICE_FEATURE_NONE)
-
-Because vfs0090 did not assign dev_class->features, instantiating the device
-crashed on startup. Call fpi_device_class_auto_initialize_features(dev_class)
-at the end of fpi_device_vfs0090_class_init to properly populate the feature
-flags from the registered driver callbacks.
 ---
  vfs0090.c | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/vfs0090.c b/vfs0090.c
-index 9333157..205619d 100644
+index 9333157..a318567 100644
 --- a/vfs0090.c
 +++ b/vfs0090.c
-@@ -3175,4 +3175,5 @@ fpi_device_vfs0090_class_init (FpiDeviceVfs0090Class *klass)
+@@ -3173,4 +3173,5 @@ fpi_device_vfs0090_class_init (FpiDeviceVfs0090Class *klass)
+   dev_class->identify = dev_activate;
    dev_class->capture = dev_activate;
    dev_class->cancel = dev_cancel;
 +  fpi_device_class_auto_initialize_features (dev_class);
  }
 -- 
-2.43.0
+2.56.0
+
