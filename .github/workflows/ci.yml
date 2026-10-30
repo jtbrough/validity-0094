@@ -1,0 +1,44 @@
+name: Build Driver
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build and export libfprint shared library
+        run: |
+          docker build --target artifacts --output dist -f build/Containerfile.builder .
+          mkdir -p dist/package/udev dist/package/tools
+          cp dist/libfprint-2.so.2.0.0 dist/package/
+          cp udev/*.rules dist/package/udev/
+          cp tools/install.sh dist/package/tools/
+          tar -czvf dist/validity-0094-x86_64.tar.gz -C dist/package .
+          cd dist && sha256sum validity-0094-x86_64.tar.gz libfprint-2.so.2.0.0 > SHA256SUMS
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: validity-0094-x86_64
+          path: |
+            dist/validity-0094-x86_64.tar.gz
+            dist/libfprint-2.so.2.0.0
+            dist/SHA256SUMS
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            dist/validity-0094-x86_64.tar.gz
+            dist/libfprint-2.so.2.0.0
+            dist/SHA256SUMS
