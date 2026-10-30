@@ -15,13 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build libfprint shared library
+      - name: Build and export libfprint shared library
         run: |
-          docker build -t fprint-builder -f build/Containerfile.builder .
-          CONTAINER_ID=$(docker create fprint-builder)
-          mkdir -p dist
-          docker cp "$CONTAINER_ID":/libfprint-2.so.2.0.0 dist/libfprint-2.so.2.0.0
-          docker rm "$CONTAINER_ID"
+          docker build --target artifacts --output dist -f build/Containerfile.builder .
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
