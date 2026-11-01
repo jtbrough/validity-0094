@@ -1,5 +1,7 @@
-# Multi-stage Containerfile to build patched libfprint for Fedora
-FROM registry.fedoraproject.org/fedora:44 AS builder
+# Multi-stage Containerfile to build patched libfprint for a Fedora release
+# (podman build --build-arg FEDORA=45 ...); the library links that release's OpenSSL.
+ARG FEDORA=44
+FROM registry.fedoraproject.org/fedora:${FEDORA} AS builder
 
 RUN dnf install -y --setopt=install_weak_deps=False \
     meson ninja-build gcc gcc-c++ git glib2-devel libgudev-devel libgusb-devel \

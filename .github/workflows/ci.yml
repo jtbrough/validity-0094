@@ -12,36 +12,51 @@ permissions:
   contents: write
 
 jobs:
-  build-x86_64:
+  build:
+    name: libfprint for Fedora ${{ matrix.fedora }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Each library links the shared libraries (OpenSSL) of its own release.
+        fedora: [ '44', '45' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Build and export libfprint shared library
+      - name: Build libfprint
         run: |
-          docker build --target artifacts --output dist -f build/Containerfile.builder .
+          docker build --build-arg FEDORA=${{ matrix.fedora }} --target artifacts --output dist -f build/Containerfile.builder .
           mkdir -p dist/package/udev dist/package/tools
           cp dist/libfprint-2.so.2.0.0 dist/package/
           cp udev/*.rules dist/package/udev/
           cp tools/install.sh dist/package/tools/
-          tar -czvf dist/validity-0094-x86_64.tar.gz -C dist/package .
-          cd dist && sha256sum validity-0094-x86_64.tar.gz libfprint-2.so.2.0.0 > SHA256SUMS
+          tar -czvf dist/validity-0094-fedora${{ matrix.fedora }}-x86_64.tar.gz -C dist/package .
 
-      - name: Upload Artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: validity-0094-x86_64
-          path: |
-            dist/validity-0094-x86_64.tar.gz
-            dist/libfprint-2.so.2.0.0
-            dist/SHA256SUMS
+          name: validity-0094-fedora${{ matrix.fedora }}-x86_64
+          path: dist/validity-0094-fedora${{ matrix.fedora }}-x86_64.tar.gz
+
+  release:
+    name: Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        run: cd dist && sha256sum *.tar.gz > SHA256SUMS && cat SHA256SUMS
 
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            dist/validity-0094-x86_64.tar.gz
-            dist/libfprint-2.so.2.0.0
+            dist/*.tar.gz
             dist/SHA256SUMS

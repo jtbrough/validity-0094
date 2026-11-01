@@ -81,12 +81,16 @@ The sensor is paired and opens.
 
 ## Building
 
-Build `libfprint` with in-tree `vfs0090` using Podman:
+Build `libfprint` with in-tree `vfs0090` using Podman. The library links the
+shared libraries of the Fedora release it is built on (OpenSSL 3 on Fedora 44,
+OpenSSL 4 on Fedora 45), so build one per release and use the matching one:
 
 ```bash
-podman build -t fprint-0094 -f build/Containerfile.builder .
-podman cp $(podman create fprint-0094):/libfprint-2.so.2.0.0 ./build/libfprint-2.so.2.0.0
+podman build --build-arg FEDORA=45 --target artifacts --output ./build -f build/Containerfile.builder .
 ```
+
+Releases carry `validity-0094-fedora44-x86_64.tar.gz` and
+`validity-0094-fedora45-x86_64.tar.gz`, with `SHA256SUMS`.
 
 ---
 
